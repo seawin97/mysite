@@ -1,7 +1,13 @@
 import pymysql
 from database import MyDB
 
-mydb = MyDB()
+mydb = MyDB(
+    _host='geuno.mysql.pythonanywhere-services.com',
+    _port=3306,
+    _user='geuno',
+    _pw='dlrmsdh1',
+    _db_name='geuno$ubion'
+)
 
 create_user = """
     create table

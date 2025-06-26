@@ -1,4 +1,5 @@
 import pymysql
+
 # mysql과 연동하고 sql 쿼리문을 보내고 결과를 받아올수 있는 class 선언 
 class MyDB:
     # 생성자 함수 
@@ -9,7 +10,7 @@ class MyDB:
         _port = 3306, 
         _user = 'root', 
         _pw = '1234', 
-        _db_name = 'ubion1'
+        _db_name = 'ubion'
     ):
         # 생성된 class에서 독립적으로 사용하려는 변수를 등록하는 과정
         self.host = _host

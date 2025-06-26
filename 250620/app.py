@@ -4,7 +4,15 @@ import pandas as pd
 from invest import Quant
 from database import MyDB
 
-mydb = MyDB()
+# MyDB class 생성 
+mydb = MyDB(
+    _host = 'geuno.mysql.pythonanywhere-services.com',
+    _port = 3306,
+    _user = 'geuno',
+    _pw = 'dlrmsdh1',
+    _db_name = 'geuno$ubion'
+)
+
 # Flask class 생성 
 # 생성자 함수 필요한 인자 : 파일의 이름 
 app = Flask(__name__)
@@ -14,25 +22,72 @@ app = Flask(__name__)
 # root url + 주소(route함수에 인자) 
 @app.route('/')
 def index():
-
     return render_template('login.html')
 
 @app.route('/main', methods=['post'])
 def main():
+    # 유저가 보낸 데이터를 변수에 저장 
+    # get 방식으로 보낸 데이터 : request.args
+    # post 방식으로 보낸 데이터 : request.form
     user_id = request.form['input_id']
     user_pass = request.form['input_pass']
-    print(f"ID: {user_id}, PW: {user_pass}")
-    login_query = """ 
-        select * from `user`
-        where id = %s and password = %s
+    print(f"id : {user_id}, pass: {user_pass}")
+    # 유저가 입력한 아이디와 비밀번호를 DB server 해당 데이터가 존재하는가?
+    login_query = """
+        select * from `user` 
+        where `id` = %s and `password` = %s
     """
     result_sql = mydb.sql_query(
         login_query, user_id, user_pass
     )
+    # result_sql이 존재한다면? -> 로그인이 성공
     if result_sql:
         return render_template('index.html')
+    # 존재하지 않으면 -> 로그인이 실패
     else:
+        # 로그인 페이지를 보여주는 주소로 이동
         return redirect('/')
+    
+@app.route('/signup')
+def signup():
+    return render_template('id_check.html')
+
+# id의 값을 중복체크하는 주소를 생성
+@app.route('/id_check')
+def id_check():
+    # 유저가 보낸 아이디를 변수에 저장 
+    user_id = request.args['input_id']
+    id_check_query = """
+        select * from `user`
+        where `id` = %s
+    """
+    result_sql = mydb.sql_query(
+        id_check_query, user_id
+    )
+    # result_sql이 존재한다면 -> 회원가입 불가 
+    if result_sql:
+        return redirect("/signup")
+    else:
+        # 사용 가능
+        return render_template(
+            'signup2.html', 
+            id = user_id)
+    
+@app.route('/user_insert', methods=['post'])
+def user_insert():
+    # 유저가 보낸 데이터가 3개 
+    user_id = request.form['input_id']
+    user_pass = request.form['input_pass']
+    user_name = request.form['input_name']
+    # DB server에 데이터를 insert 
+    insert_query = """
+        insert into `user`
+        values (%s, %s, %s)
+    """
+    mydb.sql_query(insert_query, user_id, user_pass, user_name)
+    mydb.commit_db()
+    return render_template('signup3.html')
+
 
 @app.route('/invest')
 def invest():
@@ -48,8 +103,13 @@ def invest():
             {input_kind}
         """
     )
-    # input_code를 이용해서 csv 파일을 로드 
-    df = pd.read_csv(f"csv/{input_code}.csv")
+
+    df = pd.read_csv(f"/home/geuno/geuno.pythonanywhere.com/csv/{input_code}.csv")
+    df.rename(
+        columns={
+            "날짜" : "Date",
+        }, inplace=True
+    )
     quant = Quant(df, _start = input_start_time, _end=input_end_time, _col='Close')
     if input_kind == 'bnh':
         result, rtn = quant.buyandhold()
@@ -73,5 +133,4 @@ def invest():
     }
     return res_data
 
-# 웹서버를 실행 
-app.run(debug=True)
+# csv 파일을 로드하는 주소
