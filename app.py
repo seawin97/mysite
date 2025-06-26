@@ -104,7 +104,7 @@ def invest():
         """
     )
 
-    df = pd.read_csv(f"/home/geuno/geuno.pythonanywhere.com/csv/{input_code}.csv")
+    df = pd.read_csv(f"/home/geuno/mysite/csv/{input_code}.csv")
     df.rename(
         columns={
             "날짜" : "Date",
