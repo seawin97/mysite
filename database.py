@@ -6,11 +6,11 @@ class MyDB:
     # 매개변수 : 서버의 정보(기본값은 내컴퓨터의 DB 정보)
     def __init__(
         self, 
-        _host = '127.0.0.1', 
+        _host = 'geuno.mysql.pythonanywhere-services.com', 
         _port = 3306, 
-        _user = 'root', 
-        _pw = '1234', 
-        _db_name = 'ubion'
+        _user = 'geuno', 
+        _pw = 'dlrmsdh1', 
+        _db_name = 'geuno$ubion'
     ):
         # 생성된 class에서 독립적으로 사용하려는 변수를 등록하는 과정
         self.host = _host
